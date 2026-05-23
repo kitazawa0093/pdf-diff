@@ -28,6 +28,8 @@ git push -u origin main
 2. **Build and deployment** → Source: **GitHub Actions**
 3. `main` に push すると **Deploy Web** ワークフローが走る
 
+初回デプロイが 404 で落ちたとき → [GITHUB_PAGES_CHECKLIST.md](./GITHUB_PAGES_CHECKLIST.md)
+
 公開 URL（例）: `https://<ユーザー名>.github.io/pdf-diff/`
 
 ## 4. Actions の Variables / Secrets（推奨）
