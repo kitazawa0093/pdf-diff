@@ -1,0 +1,53 @@
+# Web 版（静的サイト）を GitHub Pages に公開
+name: Deploy Web
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Build web app
+        run: npm run build
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
+          VITE_COMMISSION_LABEL: ${{ vars.VITE_COMMISSION_LABEL }}
+          VITE_BOOTH_URL: ${{ vars.VITE_BOOTH_URL }}
+          VITE_PAID_DOWNLOAD_URL: ${{ vars.VITE_PAID_DOWNLOAD_URL }}
+          VITE_FREE_DOWNLOAD_URL: ${{ vars.VITE_FREE_DOWNLOAD_URL }}
+          VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL }}
+          VITE_PRO_PASSWORD: ${{ secrets.VITE_PRO_PASSWORD }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
