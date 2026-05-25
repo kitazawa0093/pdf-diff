@@ -2,6 +2,11 @@
 
 請求書 PDF をページ単位・文字単位で比較し、差分をマーカー表示するオフラインデスクトップアプリです。
 
+- **Web 版**: https://kitazawa0093.github.io/pdf-diff/
+- **PC 版（無料）**: [Releases](https://github.com/kitazawa0093/pdf-diff/releases/latest)
+- **Pro パスワード（1,000 円・買い切り）**: BOOTH（準備中）
+- **販売・配布手順**: [docs/SELL_FLOW.md](docs/SELL_FLOW.md)
+
 - **技術**: Tauri 2 + React + TypeScript + pdf.js
 - **比較**: A のページ順を基準に、未使用の B のうち一致率が最も高いページとペア（閾値未満は B に無し／残り B は追加）。各ペア内は 1 文字単位で diff
 - **表示**: 旧 PDF（A）= 赤（削除）、新 PDF（B）= 緑（追加）

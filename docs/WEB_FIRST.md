@@ -66,5 +66,5 @@ npx vite preview --port 4173
 
 ## 次のステップ（後回しで可）
 
-- GitHub Releases に無料 PC 版（`npm run tauri build`）
-- BOOTH 商品作成
+- GitHub Releases に無料 PC 版 → [SELL_FLOW.md](./SELL_FLOW.md)
+- BOOTH 商品作成 → [SELL_FLOW.md](./SELL_FLOW.md)

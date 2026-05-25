@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            artifact_name: macos-bundle
+          - os: windows-latest
+            artifact_name: windows-bundle
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build Tauri app
+        run: npm run tauri build
+        env:
+          VITE_PRO_PASSWORD: ${{ secrets.VITE_PRO_PASSWORD }}
+          VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
+          VITE_COMMISSION_LABEL: ${{ vars.VITE_COMMISSION_LABEL }}
+          VITE_BOOTH_URL: ${{ vars.VITE_BOOTH_URL }}
+          VITE_PAID_DOWNLOAD_URL: ${{ vars.VITE_PAID_DOWNLOAD_URL }}
+          VITE_FREE_DOWNLOAD_URL: ${{ vars.VITE_FREE_DOWNLOAD_URL }}
+          VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL }}
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          find src-tauri/target/release/bundle -type f \
+            \( -name "*.dmg" -o -name "*.app.tar.gz" -o -name "*.msi" -o -name "*.exe" -o -name "*.AppImage" -o -name "*.deb" \) \
+            -exec cp {} release-assets/ \;
+          ls -la release-assets/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: release-assets/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Flatten
+        run: |
+          mkdir -p dist-release
+          find artifacts -type f -exec cp {} dist-release/ \;
+          ls -la dist-release/
+
+      - name: Create / update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: dist-release/*
